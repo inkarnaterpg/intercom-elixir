@@ -16,7 +16,7 @@ end
 
 ## Configuration
 
-To get started you'll need to add your [access_token](https://developers.intercom.com/building-apps/docs/authentication-types#section-access-tokens) to your `config.exs` file.
+To get started you'll need to add your [access_token](https://developers.intercom.com/building-apps/docs/authentication-types#section-access-tokens) to your `config.exs` file. You can also change the http_adapter used to make requests. This library uses `HTTPoison` by default.
 
 See [How to get your Access Token](https://developers.intercom.com/building-apps/docs/authentication-types#section-how-to-get-your-access-token).
 
@@ -25,6 +25,7 @@ See [How to get your Access Token](https://developers.intercom.com/building-apps
 ```elixir
 config :intercom,
   access_token: "access_token_here..."
+  http_adapter: HTTPoison
 ```
 
 ## Usage
