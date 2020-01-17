@@ -9,7 +9,21 @@ defmodule Intercom.API.Request do
     http_adapter().post(url, Jason.encode!(body), headers, []) |> parse_response()
   end
 
-  defp parse_response({:ok, %HTTPoison.Response{status_code: 200, body: body} = response}) do
+  defp parse_response({:ok, %HTTPoison.Response{} = response}) do
+    case response.status_code do
+      200 -> decode_body(response)
+      202 -> decode_body(response)
+      _ -> {:error, response}
+    end
+  end
+
+  defp parse_response({:error, error}), do: {:error, error}
+
+  defp parse_response({:ok, response}) do
+    {:error, response}
+  end
+
+  defp decode_body(%HTTPoison.Response{body: body} = response) do
     case Jason.decode(body) do
       {:ok, json} ->
         {:ok, json}
@@ -18,12 +32,6 @@ defmodule Intercom.API.Request do
         {:error, response}
     end
   end
-
-  defp parse_response({:ok, response}) do
-    {:error, response}
-  end
-
-  defp parse_response({:error, error}), do: {:error, error}
 
   defp http_adapter() do
     Application.get_env(:intercom, :http_adapter)

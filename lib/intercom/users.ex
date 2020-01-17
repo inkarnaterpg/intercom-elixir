@@ -38,4 +38,12 @@ defmodule Intercom.Users do
   def upsert(user_data) when is_map(user_data) do
     Intercom.API.call_endpoint(:post, "users", user_data)
   end
+
+  @spec bulk_upsert(list(), integer()) :: [Intercom.API.response()]
+  def bulk_upsert(user_data_list, chunk_size \\ 100) when is_list(user_data_list) do
+    user_data_list
+    |> Enum.map(fn(user_data) -> %{method: "post", data_type: "user", data: user_data} end)
+    |> Enum.chunk_every(chunk_size)
+    |> Enum.map(&Intercom.API.call_endpoint(:post, "bulk/users", %{items: &1}))
+  end
 end
