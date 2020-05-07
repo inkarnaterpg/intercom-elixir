@@ -45,7 +45,7 @@ defmodule Intercom.Users do
     |> Enum.map(fn(user_data) -> %{method: "post", data_type: "user", data: user_data} end)
     |> Enum.chunk_every(chunk_size)
     |> Enum.map(fn(items) ->
-      :timer.sleep(250)
+      :timer.sleep(10_000)
       Intercom.API.call_endpoint(:post, "bulk/users", %{items: items})
     end)
   end
