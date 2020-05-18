@@ -9,6 +9,10 @@ defmodule Intercom.API.Request do
     http_adapter().post(url, Jason.encode!(body), headers, []) |> parse_response()
   end
 
+  def make_request(:delete, url, headers, nil) do
+    http_adapter().delete(url, headers, []) |> parse_response()
+  end
+
   defp parse_response({:ok, %HTTPoison.Response{} = response}) do
     case response.status_code do
       200 -> decode_body(response)

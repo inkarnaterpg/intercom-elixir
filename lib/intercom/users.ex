@@ -49,4 +49,9 @@ defmodule Intercom.Users do
       Intercom.API.call_endpoint(:post, "bulk/users", %{items: items})
     end)
   end
+
+  @spec archive(String.t()) :: Intercom.API.response()
+  def archive(user_id) do
+    Intercom.API.call_endpoint(:delete, "users?user_id=#{user_id}")
+  end
 end
