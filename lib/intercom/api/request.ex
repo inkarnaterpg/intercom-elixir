@@ -27,6 +27,8 @@ defmodule Intercom.API.Request do
     {:error, response}
   end
 
+  defp decode_body(%HTTPoison.Response{body: ""}), do: {:ok, %{}}
+
   defp decode_body(%HTTPoison.Response{body: body} = response) do
     case Jason.decode(body) do
       {:ok, json} ->
