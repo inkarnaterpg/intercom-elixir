@@ -22,7 +22,7 @@ defmodule Intercom.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:httpoison, "~> 1.6.1"},
+      {:httpoison, "~> 1.7"},
       {:jason, "~> 1.1"},
       {:mox, "~> 0.5", only: :test},
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
