@@ -26,8 +26,10 @@ defmodule Intercom.ApiMockHelpers do
     do: mock_post(expected_url, expected_body, response_code, body, intercom_headers())
 
   def mock_post(expected_url, expected_body, response_code, body, headers) do
+    expected_body = Jason.encode!(expected_body)
+
     Intercom.MockHTTPoison
-    |> expect(:post, fn ^expected_url, _headers, expected_body, [] ->
+    |> expect(:post, fn ^expected_url, ^expected_body, _headers, [] ->
       {:ok,
        %HTTPoison.Response{
          status_code: response_code,

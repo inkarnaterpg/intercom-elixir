@@ -56,7 +56,7 @@ defmodule Intercom.ContactsTest do
 
       Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
 
-      {:ok, data, _metadata} = Intercom.Contacts.find_equal("test", "test@test.local")
+      {:ok, data, _metadata} = Intercom.Contacts.find_equal("email", "test@test.local")
 
       assert length(data) == 1
     end

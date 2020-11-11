@@ -33,7 +33,7 @@ defmodule Intercom.APITest do
     test "makes authorized post requests" do
       expected_url = Intercom.API.Rest.url("contacts/search")
 
-      expected_data = %{
+      data = %{
         query: %{field: "role", operator: "=", value: "user"}
       }
 
@@ -42,9 +42,9 @@ defmodule Intercom.APITest do
       body =
         "{\"type\":\"list\",\"data\": [{\"id\": \"123\", \"name\": \"Sebastian\"}, {\"id\": \"456\", \"name\": \"Tester\"}], \"total_count\": 4, \"pages\":{\"type\":\"pages\",\"page\":1,\"per_page\":2,\"total_pages\":2, \"next\": {\"page\": 2, \"starting_after\": \"WzE2MDI1MzgzMTEwMDAsIjVhM2FlYjVjOThhYmRhYjhlMDk3YzhmOSIsMl0=\"}}}"
 
-      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+      Intercom.ApiMockHelpers.mock_post(expected_url, data, response_code, body)
 
-      {:ok, data, metadata} = Intercom.API.call_endpoint(:post, "contacts/search")
+      {:ok, data, metadata} = Intercom.API.call_endpoint(:post, "contacts/search", data)
 
       assert length(data) == 2
       assert Map.has_key?(metadata, :pagination)
