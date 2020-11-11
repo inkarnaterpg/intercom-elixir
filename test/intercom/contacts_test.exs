@@ -15,30 +15,6 @@ defmodule Intercom.ContactsTest do
 
       assert %{"id" => @user_id, "name" => "Tester"} == data
     end
-
-    test "returns correct result in case user id does not exist" do
-      expected_url = Intercom.API.Rest.url("contacts/#{@user_id}")
-      response_code = 404
-
-      Intercom.ApiMockHelpers.mock_get(expected_url, response_code)
-
-      {:error, error, _metadata} = Intercom.Contacts.get(@user_id)
-
-      assert :resource_not_found == error
-    end
-
-    test "returns correct result in case rate limit exceeded" do
-      expected_url = Intercom.API.Rest.url("contacts/#{@user_id}")
-      response_code = 429
-      headers = Intercom.ApiMockHelpers.intercom_headers(%{"X-RateLimit-Remaining" => "0"})
-
-      Intercom.ApiMockHelpers.mock_get(expected_url, response_code, "", headers)
-
-      {:error, error, metadata} = Intercom.Contacts.get(@user_id)
-
-      assert :rate_limit_exceeded == error
-      assert 0 == metadata.rate_limit.remaining
-    end
   end
 
   describe "find_equal/2" do

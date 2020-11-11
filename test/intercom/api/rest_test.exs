@@ -2,13 +2,11 @@ defmodule Intercom.API.RestTest do
   use ExUnit.Case, async: false
 
   @module Intercom.API.Rest
-  @valid_access_token "abcde"
+  @valid_access_token Application.get_env(:intercom, :access_token)
 
   setup do
-    access_token = Application.get_env(:intercom, :access_token)
-
     on_exit(fn ->
-      Application.put_env(:intercom, :access_token, access_token)
+      Application.put_env(:intercom, :access_token, @valid_access_token)
     end)
   end
 

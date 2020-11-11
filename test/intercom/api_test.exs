@@ -54,13 +54,36 @@ defmodule Intercom.APITest do
       assert 167 == metadata.rate_limit.remaining
     end
 
-    test "returns error messages for known errors" do
+    test "returns correct error in case of 404" do
+      user_id = "123"
+      expected_url = Intercom.API.Rest.url("contacts/#{user_id}")
+      response_code = 404
+
+      Intercom.ApiMockHelpers.mock_get(expected_url, response_code)
+
+      {:error, :resource_not_found, _metadata} = Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+    end
+
+    test "returns correct error in case rate limit exceeded" do
+      user_id = "123"
+      expected_url = Intercom.API.Rest.url("contacts/#{user_id}")
+      response_code = 429
+      headers = Intercom.ApiMockHelpers.intercom_headers(%{"X-RateLimit-Remaining" => "0"})
+
+      Intercom.ApiMockHelpers.mock_get(expected_url, response_code, "", headers)
+
+      {:error, :rate_limit_exceeded, metadata} = Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+
+      assert 0 == metadata.rate_limit.remaining
+    end
+
+    test "returns error messages if no access token is given" do
       Application.delete_env(:intercom, :access_token)
 
       assert {:error, :no_access_token, nil} == Intercom.API.call_endpoint(:get, "contacts/123")
     end
 
-    test "returns raw unknown error messages" do
+    test "returns undefined and metadata in case of HTTPoison.Error" do
       expected_error = %HTTPoison.Error{id: nil, reason: :econnrefused}
 
       Intercom.MockHTTPoison
