@@ -7,32 +7,23 @@ defmodule Intercom.API do
   """
 
   @type metadata_pagination ::
-          %{page: integer(), total_pages: integer(), per_page: integer()}
-          | %{
-              page: integer(),
-              next_page: integer(),
-              total_pages: integer(),
-              per_page: integer(),
-              starting_after: binary()
-            }
+          %{
+            required(:page) => integer(),
+            optional(:next_page) => integer(),
+            required(:total_pages) => integer(),
+            required(:per_page) => integer(),
+            optional(:starting_after) => binary()
+          }
   @type metadata ::
           %{
-            response: map(),
-            rate_limit: %{
+            required(:response) => map(),
+            required(:rate_limit) => %{
               limit: integer(),
               reset: %DateTime{},
               remaining: integer()
-            }
+            },
+            optional(:pagination) => metadata_pagination
           }
-          | %{
-              response: map(),
-              rate_limit: %{
-                limit: integer(),
-                reset: %DateTime{},
-                remaining: integer()
-              },
-              pagination: metadata_pagination
-            }
   @type success :: {:ok, map(), metadata}
   @type error :: {:error, atom(), metadata | nil}
   @type response :: success | error
@@ -44,13 +35,41 @@ defmodule Intercom.API do
   - `method`: The HTTP request method.
   - `path`: The request path, e.g `"users/1234"`.
   - `body`: The body of the request. Optional.
+  - `opts`: Will be added either to the query part of the url (get) or the body of the request (post). Optional
+    - `per_page`: Results per page if result is a list, has to be between 1 and 150
+    - `starting_after`: Hash returned by the intercom API to get next page of results
 
   Returns `{:ok, data, metadata}` or `{:error, error_code, metadata}`.
   """
-  @spec call_endpoint(:get | :post, String.t(), map() | nil) :: response()
-  def call_endpoint(method, path, body \\ nil) do
-    with url <- Intercom.API.Rest.url(path),
-         {:ok, authorized_headers} <- Intercom.API.Rest.authorized_headers(),
+  @spec call_endpoint(:get | :post, String.t(), map() | nil,
+          per_page: integer(),
+          starting_after: binary()
+        ) :: response()
+  def call_endpoint(method, path, body \\ nil, opts \\ [])
+
+  def call_endpoint(:get, path, body, opts) do
+    with url <- Intercom.API.Rest.url(path, opts) do
+      call_endpoint_with_full_url_and_body(:get, url, body)
+    end
+  end
+
+  def call_endpoint(:post, path, body, []) do
+    with url <- Intercom.API.Rest.url(path) do
+      call_endpoint_with_full_url_and_body(:post, url, body)
+    end
+  end
+
+  def call_endpoint(:post, path, body, opts) do
+    body =
+      Map.merge(body, %{
+        pagination: Enum.reduce(opts, %{}, fn {k, v}, acc -> Map.merge(acc, %{"#{k}": v}) end)
+      })
+
+    call_endpoint(:post, path, body)
+  end
+
+  defp call_endpoint_with_full_url_and_body(method, url, body) do
+    with {:ok, authorized_headers} <- Intercom.API.Rest.authorized_headers(),
          {:ok, response, body} <-
            Intercom.API.Request.make_request(method, url, authorized_headers, body) do
       metadata =

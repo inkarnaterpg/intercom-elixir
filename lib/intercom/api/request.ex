@@ -1,16 +1,22 @@
 defmodule Intercom.API.Request do
   @moduledoc false
 
+  @spec make_request(:get, binary(), list(), nil) ::
+          {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
   def make_request(:get, url, headers, nil) do
     http_adapter().get(url, headers)
     |> parse_response()
   end
 
+  @spec make_request(:post, binary(), list(), map()) ::
+          {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
   def make_request(:post, url, headers, body) do
     http_adapter().post(url, Jason.encode!(body), headers, [])
     |> parse_response()
   end
 
+  @spec make_request(:delete, binary(), list(), nil) ::
+          {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
   def make_request(:delete, url, headers, nil) do
     http_adapter().delete(url, headers, [])
     |> parse_response()

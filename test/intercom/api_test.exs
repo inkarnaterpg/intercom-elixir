@@ -30,7 +30,47 @@ defmodule Intercom.APITest do
       assert 167 == metadata.rate_limit.remaining
     end
 
+    test "makes authorized get requests with per_page query param" do
+      user_id = "123"
+      expected_url = Intercom.API.Rest.url("contacts/#{user_id}") <> "?per_page=50"
+      response_code = 200
+      body = "{\"id\": \"#{user_id}\", \"name\": \"Tester\"}"
+
+      Intercom.ApiMockHelpers.mock_get(expected_url, response_code, body)
+
+      {:ok, data, metadata} =
+        Intercom.API.call_endpoint(:get, "contacts/#{user_id}", nil, per_page: 50)
+
+      assert %{"id" => user_id, "name" => "Tester"} == data
+      refute Map.has_key?(metadata, :pagination)
+      assert Map.has_key?(metadata, :response)
+      assert 167 == metadata.rate_limit.limit
+      assert 167 == metadata.rate_limit.remaining
+    end
+
     test "makes authorized post requests" do
+      expected_url = Intercom.API.Rest.url("contacts/search")
+
+      data = %{
+        query: %{field: "role", operator: "=", value: "user"}
+      }
+
+      response_code = 200
+
+      body =
+        "{\"type\":\"list\",\"data\": [{\"id\": \"123\", \"name\": \"Sebastian\"}], \"total_count\": 1, \"pages\":{\"type\":\"pages\",\"page\":1,\"per_page\":1,\"total_pages\":1}}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, data, response_code, body)
+
+      {:ok, data, metadata} = Intercom.API.call_endpoint(:post, "contacts/search", data)
+
+      assert length(data) == 1
+      assert Map.has_key?(metadata, :response)
+      assert 167 == metadata.rate_limit.limit
+      assert 167 == metadata.rate_limit.remaining
+    end
+
+    test "makes authorized post requests with pagination" do
       expected_url = Intercom.API.Rest.url("contacts/search")
 
       data = %{
@@ -49,9 +89,31 @@ defmodule Intercom.APITest do
       assert length(data) == 2
       assert Map.has_key?(metadata, :pagination)
       assert Map.has_key?(metadata.pagination, :starting_after)
-      assert Map.has_key?(metadata, :response)
-      assert 167 == metadata.rate_limit.limit
-      assert 167 == metadata.rate_limit.remaining
+    end
+
+    test "makes authorized post requests with pagination request" do
+      expected_url = Intercom.API.Rest.url("contacts/search")
+
+      data = %{
+        query: %{field: "role", operator: "=", value: "user"}
+      }
+
+      expected_data = Map.merge(data, %{pagination: %{per_page: 50, starting_after: "abc_123"}})
+
+      response_code = 200
+
+      body =
+        "{\"type\":\"list\",\"data\": [{\"id\": \"123\", \"name\": \"Sebastian\"}], \"total_count\": 1, \"pages\":{\"type\":\"pages\",\"page\":1,\"per_page\":50,\"total_pages\":1}}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+
+      {:ok, data, _metadata} =
+        Intercom.API.call_endpoint(:post, "contacts/search", data,
+          per_page: 50,
+          starting_after: "abc_123"
+        )
+
+      assert length(data) == 1
     end
 
     test "returns correct error in case of 404" do
@@ -61,7 +123,8 @@ defmodule Intercom.APITest do
 
       Intercom.ApiMockHelpers.mock_get(expected_url, response_code)
 
-      {:error, :resource_not_found, _metadata} = Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+      {:error, :resource_not_found, _metadata} =
+        Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
     end
 
     test "returns correct error in case rate limit exceeded" do
@@ -72,7 +135,8 @@ defmodule Intercom.APITest do
 
       Intercom.ApiMockHelpers.mock_get(expected_url, response_code, "", headers)
 
-      {:error, :rate_limit_exceeded, metadata} = Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+      {:error, :rate_limit_exceeded, metadata} =
+        Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
 
       assert 0 == metadata.rate_limit.remaining
     end

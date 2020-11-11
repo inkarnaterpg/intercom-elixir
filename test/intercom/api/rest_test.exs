@@ -14,6 +14,10 @@ defmodule Intercom.API.RestTest do
     test "appends path to base endpoint url" do
       assert "https://api.intercom.io/users" == @module.url("users")
     end
+
+    test "appends path to base endpoint url and ads per_page param" do
+      assert "https://api.intercom.io/users?per_page=50" == @module.url("users", per_page: 50)
+    end
   end
 
   describe "authorized_headers/0" do
