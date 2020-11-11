@@ -1,15 +1,8 @@
 defmodule Intercom.APITest do
   use ExUnit.Case, async: false
   import Mox
+
   doctest Intercom
-
-  @module Intercom.API
-  @http_adapter Application.get_env(:intercom, :http_adapter)
-  @json_body "{\"user_id\": 25}"
-  @success_response %HTTPoison.Response{status_code: 200, body: @json_body}
-  @parsed_body %{"user_id" => 25}
-
-  setup :verify_on_exit!
 
   setup do
     access_token = Application.get_env(:intercom, :access_token)
@@ -21,32 +14,63 @@ defmodule Intercom.APITest do
 
   describe "call_endpoint/3" do
     test "makes authorized get requests" do
-      expect(@http_adapter, :get, fn _url, _headers, _options -> {:ok, @success_response} end)
-      assert @module.call_endpoint(:get, "users") == {:ok, @parsed_body}
+      user_id = "123"
+      expected_url = Intercom.API.Rest.url("contacts/#{user_id}")
+      response_code = 200
+      body = "{\"id\": \"#{user_id}\", \"name\": \"Tester\"}"
+
+      Intercom.ApiMockHelpers.mock_get(expected_url, response_code, body)
+
+      {:ok, data, metadata} = Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+
+      assert %{"id" => user_id, "name" => "Tester"} == data
+      refute Map.has_key?(metadata, :pagination)
+      assert Map.has_key?(metadata, :response)
+      assert 167 == metadata.rate_limit.limit
+      assert 167 == metadata.rate_limit.remaining
     end
 
     test "makes authorized post requests" do
-      expect(@http_adapter, :post, fn _url, _body, _headers, _options ->
-        {:ok, @success_response}
-      end)
+      expected_url = Intercom.API.Rest.url("contacts/search")
 
-      assert @module.call_endpoint(:post, "users", "{\"user_id\": 25}") == {:ok, @parsed_body}
+      expected_data = %{
+        query: %{field: "role", operator: "=", value: "user"}
+      }
+
+      response_code = 200
+
+      body =
+        "{\"type\":\"list\",\"data\": [{\"id\": \"123\", \"name\": \"Sebastian\"}, {\"id\": \"456\", \"name\": \"Tester\"}], \"total_count\": 4, \"pages\":{\"type\":\"pages\",\"page\":1,\"per_page\":2,\"total_pages\":2, \"next\": {\"page\": 2, \"starting_after\": \"WzE2MDI1MzgzMTEwMDAsIjVhM2FlYjVjOThhYmRhYjhlMDk3YzhmOSIsMl0=\"}}}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+
+      {:ok, data, metadata} = Intercom.API.call_endpoint(:post, "contacts/search")
+
+      assert length(data) == 2
+      assert Map.has_key?(metadata, :pagination)
+      assert Map.has_key?(metadata.pagination, :starting_after)
+      assert Map.has_key?(metadata, :response)
+      assert 167 == metadata.rate_limit.limit
+      assert 167 == metadata.rate_limit.remaining
     end
 
     test "returns error messages for known errors" do
-      expected_error_message =
-        "No access token found. Configure your access token in config.exs. See https://developers.intercom.com/building-apps/docs/authentication-types#section-how-to-get-your-access-token for information about how to get your access token."
-
       Application.delete_env(:intercom, :access_token)
 
-      assert @module.call_endpoint(:get, "users") ==
-               {:error, :no_access_token, expected_error_message}
+      assert {:error, :no_access_token, nil} == Intercom.API.call_endpoint(:get, "contacts/123")
     end
 
     test "returns raw unknown error messages" do
       expected_error = %HTTPoison.Error{id: nil, reason: :econnrefused}
-      expect(@http_adapter, :get, fn _url, _headers, _options -> {:error, expected_error} end)
-      assert @module.call_endpoint(:get, "users") == {:error, expected_error, nil}
+
+      Intercom.MockHTTPoison
+      |> expect(:get, fn _expected_url, _headers ->
+        {:error, expected_error}
+      end)
+
+      {:error, :undefined, metadata} = Intercom.API.call_endpoint(:get, "contacts/123")
+
+      assert expected_error == metadata.error
     end
   end
 end

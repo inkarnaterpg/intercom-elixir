@@ -14,24 +14,23 @@ defmodule Intercom.API.RestTest do
 
   describe "url/1" do
     test "appends path to base endpoint url" do
-      assert @module.url("users") == "https://api.intercom.io/users"
+      assert "https://api.intercom.io/users" == @module.url("users")
     end
   end
 
   describe "authorized_headers/0" do
     test "puts access token into authorization header" do
-      assert @module.authorized_headers() ==
-               {:ok,
-                [
-                  Authorization: "Bearer #{@valid_access_token}",
-                  Accept: "application/json",
-                  "Content-Type": "application/json"
-                ]}
+      assert {:ok,
+              [
+                Authorization: "Bearer #{@valid_access_token}",
+                Accept: "application/json",
+                "Content-Type": "application/json"
+              ]} == @module.authorized_headers()
     end
 
     test "returns errors from getting access token" do
       Application.delete_env(:intercom, :access_token)
-      assert @module.authorized_headers() == {:error, :no_access_token}
+      assert {:error, :no_access_token} == @module.authorized_headers()
     end
   end
 end
