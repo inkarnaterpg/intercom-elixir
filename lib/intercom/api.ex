@@ -15,15 +15,24 @@ defmodule Intercom.API do
               per_page: integer(),
               starting_after: binary()
             }
-  @type metadata :: %{
-          response: map(),
-          rate_limit: %{
-            limit: integer(),
-            reset: %DateTime{},
-            remaining: integer(),
-            pagination: metadata_pagination | nil
+  @type metadata ::
+          %{
+            response: map(),
+            rate_limit: %{
+              limit: integer(),
+              reset: %DateTime{},
+              remaining: integer()
+            }
           }
-        }
+          | %{
+              response: map(),
+              rate_limit: %{
+                limit: integer(),
+                reset: %DateTime{},
+                remaining: integer()
+              },
+              pagination: metadata_pagination
+            }
   @type success :: {:ok, map(), metadata}
   @type error :: {:error, atom(), metadata | nil}
   @type response :: success | error
@@ -36,7 +45,7 @@ defmodule Intercom.API do
   - `path`: The request path, e.g `"users/1234"`.
   - `body`: The body of the request. Optional.
 
-  Returns `{:ok, data}` or `{:error, error, message}`.
+  Returns `{:ok, data, metadata}` or `{:error, error_code, metadata}`.
   """
   @spec call_endpoint(:get | :post, String.t(), map() | nil) :: response()
   def call_endpoint(method, path, body \\ nil) do

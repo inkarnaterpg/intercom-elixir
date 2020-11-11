@@ -47,8 +47,6 @@ defmodule Intercom.API.Request do
     end
   end
 
-  defp decode_body(nil), do: {:ok, %{}}
-
   defp http_adapter() do
     Application.get_env(:intercom, :http_adapter)
   end
