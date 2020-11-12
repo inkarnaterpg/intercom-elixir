@@ -6,6 +6,8 @@ defmodule Intercom.API do
   See https://developers.intercom.com/intercom-api-reference/reference
   """
 
+  @type opts :: {:per_page, integer()} | {:starting_after, binary()}
+
   @type metadata_pagination ::
           %{
             required(:page) => integer(),
@@ -41,24 +43,24 @@ defmodule Intercom.API do
 
   Returns `{:ok, data, metadata}` or `{:error, error_code, metadata}`.
   """
-  @spec call_endpoint(:get | :post, String.t(), map() | nil,
-          per_page: integer(),
-          starting_after: binary()
-        ) :: response()
   def call_endpoint(method, path, body \\ nil, opts \\ [])
 
-  def call_endpoint(:get, path, body, opts) do
+  @spec call_endpoint(:get, String.t(), nil) :: response()
+  @spec call_endpoint(:get, String.t(), nil, [opts]) :: response()
+  def call_endpoint(:get, path, nil, opts) do
     with url <- Intercom.API.Rest.url(path, opts) do
-      call_endpoint_with_full_url_and_body(:get, url, body)
+      call_endpoint_with_full_url_and_body(:get, url, nil)
     end
   end
 
+  @spec call_endpoint(:post, String.t(), map() | nil) :: response()
   def call_endpoint(:post, path, body, []) do
     with url <- Intercom.API.Rest.url(path) do
       call_endpoint_with_full_url_and_body(:post, url, body)
     end
   end
 
+  @spec call_endpoint(:post, String.t(), map() | nil, [opts]) :: response()
   def call_endpoint(:post, path, body, opts) do
     body =
       Map.merge(body, %{
