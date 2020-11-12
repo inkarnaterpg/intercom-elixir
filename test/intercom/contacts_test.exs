@@ -1,19 +1,19 @@
 defmodule Intercom.ContactsTest do
   use ExUnit.Case
 
-  @user_id "123"
-
   describe "get/1" do
-    test "returns correct result in case user id does exist" do
-      expected_url = Intercom.API.Rest.url("contacts/#{@user_id}")
+    test "returns correct result in case contact_id does exist" do
+      contact_id = "123"
+
+      expected_url = Intercom.API.Rest.url("contacts/#{contact_id}")
       response_code = 200
-      body = "{\"id\": \"#{@user_id}\", \"name\": \"Tester\"}"
+      body = "{\"id\": \"#{contact_id}\", \"name\": \"Tester\"}"
 
       Intercom.ApiMockHelpers.mock_get(expected_url, response_code, body)
 
-      {:ok, data, _metadata} = Intercom.Contacts.get(@user_id)
+      {:ok, data, _metadata} = Intercom.Contacts.get(contact_id)
 
-      assert %{"id" => @user_id, "name" => "Tester"} == data
+      assert %{"id" => contact_id, "name" => "Tester"} == data
     end
   end
 
@@ -73,6 +73,29 @@ defmodule Intercom.ContactsTest do
       {:ok, data, _metadata} = Intercom.Contacts.find_equal("role", "user")
 
       assert length(data) == 2
+    end
+  end
+
+  describe "add_tag/2" do
+    test "returns correct result in case contact_id and tag_id does exist" do
+      contact_id = "123"
+      tag_id = "456"
+
+      expected_url = Intercom.API.Rest.url("contacts/#{contact_id}/tags")
+
+      expected_data = %{
+        id: tag_id
+      }
+
+      response_code = 200
+
+      body = "{\"type\": \"tag\", \"id\": \"#{tag_id}\", \"name\": \"Test Tag\"}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+
+      {:ok, data, _metadata} = Intercom.Contacts.add_tag(contact_id, tag_id)
+
+      assert %{"type" => "tag", "id" => tag_id, "name" => "Test Tag"} == data
     end
   end
 end
