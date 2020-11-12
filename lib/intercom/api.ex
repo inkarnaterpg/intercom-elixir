@@ -37,9 +37,9 @@ defmodule Intercom.API do
   - `method`: The HTTP request method.
   - `path`: The request path, e.g `"users/1234"`.
   - `body`: The body of the request. Optional.
-  - `opts`: Will be added either to the query part of the url (get) or the body of the request (post). Optional
-    - `per_page`: Results per page if result is a list, has to be between 1 and 150
-    - `starting_after`: Hash returned by the intercom API to get next page of results
+  - `opts`: Will be added either to the query part of the url (get) or the body of the request (post). Optional.
+    - `per_page`: Results per page if result is a list, has to be between 1 and 150.
+    - `starting_after`: Hash returned by the intercom API to get next page of results.
 
   Returns `{:ok, data, metadata}` or `{:error, error_code, metadata}`.
   """

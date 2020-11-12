@@ -1,4 +1,4 @@
-defmodule Intercom.TagssTest do
+defmodule Intercom.TagsTest do
   use ExUnit.Case
 
   describe "list/0" do
