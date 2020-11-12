@@ -10,12 +10,7 @@ defmodule Intercom.ApiMockHelpers do
   def mock_get(expected_url, response_code, body, headers) do
     Intercom.MockHTTPoison
     |> expect(:get, fn ^expected_url, _headers ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: response_code,
-         body: body,
-         headers: headers
-       }}
+      mock_response(response_code, headers, body)
     end)
   end
 
@@ -25,17 +20,19 @@ defmodule Intercom.ApiMockHelpers do
   def mock_post(expected_url, expected_body, response_code, body),
     do: mock_post(expected_url, expected_body, response_code, body, intercom_headers())
 
+  def mock_post(expected_url, nil, response_code, body, headers) do
+    Intercom.MockHTTPoison
+    |> expect(:post, fn ^expected_url, _expected_body, _headers, [] ->
+      mock_response(response_code, headers, body)
+    end)
+  end
+
   def mock_post(expected_url, expected_body, response_code, body, headers) do
     expected_body = Jason.encode!(expected_body)
 
     Intercom.MockHTTPoison
     |> expect(:post, fn ^expected_url, ^expected_body, _headers, [] ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: response_code,
-         body: body,
-         headers: headers
-       }}
+      mock_response(response_code, headers, body)
     end)
   end
 
@@ -50,5 +47,14 @@ defmodule Intercom.ApiMockHelpers do
       headers
     )
     |> Map.to_list()
+  end
+
+  defp mock_response(response_code, headers, body) do
+    {:ok,
+     %HTTPoison.Response{
+       status_code: response_code,
+       body: body,
+       headers: headers
+     }}
   end
 end
