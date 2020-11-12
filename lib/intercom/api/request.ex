@@ -26,6 +26,7 @@ defmodule Intercom.API.Request do
     body =
       case response.status_code do
         200 -> decode_body(response)
+        202 -> decode_body(response)
         _ -> {:error, response}
       end
 
