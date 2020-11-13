@@ -1,0 +1,12 @@
+image: elixir:1.11.1-alpine
+
+before_script:
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
+
+mix:
+  tags:
+    - docker
+  script:
+    - mix test
