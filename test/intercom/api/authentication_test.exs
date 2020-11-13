@@ -23,7 +23,7 @@ defmodule Intercom.API.AuthenticationTest do
     end
 
     test "returns correct error message when access token is invalid" do
-      Application.put_env(:intercom, :access_token, 12345)
+      Application.put_env(:intercom, :access_token, 1)
       assert {:error, :invalid_access_token} == @module.get_access_token()
     end
   end

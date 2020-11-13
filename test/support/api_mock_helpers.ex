@@ -1,4 +1,6 @@
 defmodule Intercom.ApiMockHelpers do
+  @moduledoc false
+
   import Mox
 
   def mock_get(expected_url, response_code),

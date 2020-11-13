@@ -3,7 +3,7 @@ defmodule Intercom.API.RequestTest do
   import Mox
 
   @module Intercom.API.Request
-  @http_adapter Application.get_env(:intercom, :http_adapter)
+  @http_adapter Application.compile_env(:intercom, :http_adapter)
   @url "https://example.com/users"
   @headers [Authorization: "Bearer abcde"]
   @json_body "{\"user_id\":25}"
