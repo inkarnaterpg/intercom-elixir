@@ -6,7 +6,12 @@ before_script:
   - mix deps.get
 
 mix:
-  tags:
-    - docker
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - deps
+      - _build
   script:
     - mix test
+  tags:
+    - docker
