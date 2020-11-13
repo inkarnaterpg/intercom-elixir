@@ -9,9 +9,11 @@ mix:
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - deps
       - _build
+      - deps
+      - priv/plts
   script:
+    - mix dialyzer
     - mix test
   tags:
     - docker
