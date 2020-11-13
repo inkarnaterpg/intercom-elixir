@@ -28,12 +28,13 @@ defmodule Intercom.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:httpoison, "~> 1.7"},
       {:jason, "~> 1.1"},
-      {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 
