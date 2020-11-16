@@ -9,12 +9,12 @@ defmodule Intercom.MixProject do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
+      dialyzer: dialyzer(),
       description: description(),
       package: package(),
       deps: deps(),
-      dialyzer: [
-        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
-      ]
+      name: "intercom_elixir",
+      source_url: "https://github.com/diagnosia/intercom-elixir"
     ]
   end
 
@@ -40,6 +40,12 @@ defmodule Intercom.MixProject do
 
   defp description do
     "An Elixir library for working with Intercom using the Intercom API."
+  end
+
+  defp dialyzer do
+    [
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+    ]
   end
 
   defp elixirc_paths(:test), do: ["test/support", "lib"]
