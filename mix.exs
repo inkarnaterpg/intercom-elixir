@@ -8,13 +8,13 @@ defmodule Intercom.MixProject do
       elixir: "~> 1.9",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       description: description(),
       package: package(),
       deps: deps(),
-      name: "intercom_elixir",
-      source_url: "https://github.com/diagnosia/intercom-elixir"
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -32,7 +32,7 @@ defmodule Intercom.MixProject do
       {:jason, "~> 1.1"},
       {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end

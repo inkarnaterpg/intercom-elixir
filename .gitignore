@@ -34,3 +34,7 @@ intercom-*.tar
 # secrets file as long as you replace its contents by environment
 # variables.
 /config/*.secret.exs
+
+# Dialyzer
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
