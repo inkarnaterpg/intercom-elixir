@@ -1,4 +1,4 @@
-This is a fork of the https://github.com/intercom/intercom-elixir library which is no longer maintained.
+This is a fork of the [intercom](https://github.com/intercom/intercom-elixir) library which is no longer maintained.
 
 # Intercom
 
@@ -11,7 +11,7 @@ Add `intercom` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:intercom, "~> 1.0.0"}
+    {:intercom, "~> 1.3", hex: :intercom_elixir}
   ]
 end
 ```
@@ -32,7 +32,7 @@ config :intercom,
 
 ## Usage
 
-TODO: Generate documentation with [ex_doc](https://github.com/elixir-lang/ex_doc), publish to hexdocs.pm and reference here.
+The [full documentation](https://hexdocs.pm/intercom_elixir/api-reference.html) is published to hexdocs.
 
 This library provides functions for easy access to API endpoints. For example, [User](https://developers.intercom.com/intercom-api-reference/reference#users) endpoints can be accessed like this:
 
