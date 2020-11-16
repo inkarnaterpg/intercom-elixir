@@ -1,3 +1,5 @@
+This is a fork of the https://github.com/intercom/intercom-elixir library which is no longer maintained.
+
 # Intercom
 
 An Elixir library for working with [Intercom](https://intercom.io) using the [Intercom API](https://developers.intercom.com/building-apps/docs/rest-apis).
