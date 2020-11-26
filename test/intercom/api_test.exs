@@ -121,10 +121,15 @@ defmodule Intercom.APITest do
       expected_url = Intercom.API.Rest.url("contacts/#{user_id}")
       response_code = 404
 
-      Intercom.ApiMockHelpers.mock_get(expected_url, response_code)
+      body =
+        "{\"type\":\"error.list\",\"request_id\":\"001epk13vcts36rcb9gg\",\"errors\":[{\"code\":\"not_found\",\"message\":\"User Not Found\"}]}"
 
-      {:error, :resource_not_found, _metadata} =
+      Intercom.ApiMockHelpers.mock_get(expected_url, response_code, body)
+
+      {:error, :resource_not_found, metadata} =
         Intercom.API.call_endpoint(:get, "contacts/#{user_id}")
+
+      assert Map.has_key?(metadata, :errors)
     end
 
     test "returns correct error in case rate limit exceeded" do

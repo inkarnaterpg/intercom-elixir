@@ -51,7 +51,7 @@ defmodule Intercom.API.RequestTest do
         {:ok, %HTTPoison.Response{status_code: 418, body: @json_body}}
       end)
 
-      assert {:error, %HTTPoison.Response{status_code: 418, body: @json_body}} ==
+      assert {:error, %HTTPoison.Response{status_code: 418, body: @json_body}, %{"user_id" => 25}} ==
                @module.make_request(:get, @url, @headers, nil)
     end
 

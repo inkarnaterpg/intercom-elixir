@@ -23,16 +23,16 @@ defmodule Intercom.API.Request do
   end
 
   defp parse_response({:ok, %HTTPoison.Response{} = response}) do
-    body =
-      case response.status_code do
-        200 -> decode_body(response)
-        202 -> decode_body(response)
-        _ -> {:error, response}
-      end
+    case decode_body(response) do
+      {:ok, body} ->
+        case response.status_code do
+          200 -> {:ok, response, body}
+          202 -> {:ok, response, body}
+          _ -> {:error, response, body}
+        end
 
-    case body do
-      {:ok, body} -> {:ok, response, body}
-      {:error, response} -> {:error, response}
+      {:error, response} ->
+        {:error, response}
     end
   end
 

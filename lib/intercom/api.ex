@@ -24,7 +24,8 @@ defmodule Intercom.API do
               reset: %DateTime{},
               remaining: integer()
             },
-            optional(:pagination) => metadata_pagination
+            optional(:pagination) => metadata_pagination,
+            optional(:errors) => [map()]
           }
   @type success :: {:ok, map(), metadata}
   @type error :: {:error, atom(), metadata | nil}
@@ -79,6 +80,12 @@ defmodule Intercom.API do
 
       {:ok, extract_body(body), metadata}
     else
+      {:error, response, body} ->
+        metadata =
+          Map.merge(extract_metadata_from_headers(response), extract_metadata_from_body(body))
+
+        {:error, extract_error_code(response), metadata}
+
       {:error, response} ->
         {:error, extract_error_code(response), extract_metadata_from_headers(response)}
     end
@@ -103,6 +110,12 @@ defmodule Intercom.API do
         total_pages: Map.get(pages, "total_pages"),
         per_page: Map.get(pages, "per_page")
       }
+    }
+  end
+
+  defp extract_metadata_from_body(%{"type" => "error.list", "errors" => errors}) do
+    %{
+      errors: errors
     }
   end
 
