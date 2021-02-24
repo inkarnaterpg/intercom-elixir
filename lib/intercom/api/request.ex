@@ -15,6 +15,13 @@ defmodule Intercom.API.Request do
     |> parse_response()
   end
 
+  @spec make_request(:put, binary(), list(), map()) ::
+          {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
+  def make_request(:put, url, headers, body) do
+    http_adapter().put(url, Jason.encode!(body), headers, [])
+    |> parse_response()
+  end
+
   @spec make_request(:delete, binary(), list(), nil) ::
           {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
   def make_request(:delete, url, headers, nil) do

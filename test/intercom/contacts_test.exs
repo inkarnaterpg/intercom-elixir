@@ -17,6 +17,27 @@ defmodule Intercom.ContactsTest do
     end
   end
 
+  describe "update/2" do
+    test "returns correct result in case contact_id does exist" do
+      contact_id = "123"
+
+      expected_url = Intercom.API.Rest.url("contacts/#{contact_id}")
+
+      expected_data = %{
+        email: "chuck@dgns.wtf"
+      }
+
+      response_code = 200
+      body = "{\"id\": \"#{contact_id}\", \"name\": \"Tester\", \"email\": \"chuck@dgns.wtf\"}"
+
+      Intercom.ApiMockHelpers.mock_put(expected_url, expected_data, response_code, body)
+
+      {:ok, data, _metadata} = Intercom.Contacts.update(contact_id, %{email: "chuck@dgns.wtf"})
+
+      assert %{"id" => contact_id, "name" => "Tester", "email" => "chuck@dgns.wtf"} == data
+    end
+  end
+
   describe "find_equal/2" do
     test "returns correct result for one result" do
       expected_url = Intercom.API.Rest.url("contacts/search")

@@ -38,6 +38,15 @@ defmodule Intercom.ApiMockHelpers do
     end)
   end
 
+  def mock_put(expected_url, expected_body, response_code, body) do
+    expected_body = Jason.encode!(expected_body)
+
+    Intercom.MockHTTPoison
+    |> expect(:put, fn ^expected_url, ^expected_body, _headers, [] ->
+      mock_response(response_code, intercom_headers(), body)
+    end)
+  end
+
   def intercom_headers(headers \\ %{}) do
     Map.merge(
       %{

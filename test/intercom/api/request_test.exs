@@ -36,6 +36,14 @@ defmodule Intercom.API.RequestTest do
       {:ok, _response, _body} = @module.make_request(:post, @url, @headers, @body)
     end
 
+    test "with :put method makes call to HTTPoison post and 200 status code" do
+      expect(@http_adapter, :put, fn @url, @json_body, @headers, [] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: @json_body}}
+      end)
+
+      {:ok, _response, _body} = @module.make_request(:put, @url, @headers, @body)
+    end
+
     test "returns map of parsed JSON body when JSON returned with 200 response" do
       expect(@http_adapter, :get, fn @url, @headers ->
         {:ok, %HTTPoison.Response{status_code: 200, body: @json_body}}

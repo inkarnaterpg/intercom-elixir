@@ -116,6 +116,28 @@ defmodule Intercom.APITest do
       assert length(data) == 1
     end
 
+    test "makes authorized put requests" do
+      expected_url = Intercom.API.Rest.url("contacts/1")
+
+      data = %{
+        email: "chuck@dgns.wtf"
+      }
+
+      response_code = 200
+
+      body =
+        "{\"type\":\"contact\",\"id\":\"58d90c0e1580bdc9390f0059\",\"external_id\":\"ab41f085-af25-3b16-b223-1f7a241a1200\",\"role\":\"user\",\"email\":\"chuck@dgns.wtf\"}"
+
+      Intercom.ApiMockHelpers.mock_put(expected_url, data, response_code, body)
+
+      {:ok, data, metadata} = Intercom.API.call_endpoint(:put, "contacts/1", data)
+
+      assert data["email"] == "chuck@dgns.wtf"
+      assert Map.has_key?(metadata, :response)
+      assert 167 == metadata.rate_limit.limit
+      assert 167 == metadata.rate_limit.remaining
+    end
+
     test "returns correct error in case of 404" do
       user_id = "123"
       expected_url = Intercom.API.Rest.url("contacts/#{user_id}")

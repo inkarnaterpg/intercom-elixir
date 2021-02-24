@@ -71,6 +71,13 @@ defmodule Intercom.API do
     call_endpoint(:post, path, body)
   end
 
+  @spec call_endpoint(:put, String.t(), map() | nil) :: response()
+  def call_endpoint(:put, path, body, []) do
+    with url <- Intercom.API.Rest.url(path) do
+      call_endpoint_with_full_url_and_body(:put, url, body)
+    end
+  end
+
   defp call_endpoint_with_full_url_and_body(method, url, body) do
     with {:ok, authorized_headers} <- Intercom.API.Rest.authorized_headers(),
          {:ok, response, body} <-
