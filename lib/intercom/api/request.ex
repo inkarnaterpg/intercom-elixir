@@ -11,7 +11,13 @@ defmodule Intercom.API.Request do
   @spec make_request(:post, binary(), list(), map()) ::
           {:error, HTTPoison.Response.t() | any()} | {:ok, HTTPoison.Response.t(), map()}
   def make_request(:post, url, headers, body) do
-    http_adapter().post(url, Jason.encode!(body), headers, [])
+    encoded_body =
+      case body do
+        nil -> ""
+        body -> Jason.encode!(body)
+      end
+
+    http_adapter().post(url, encoded_body, headers, [])
     |> parse_response()
   end
 
