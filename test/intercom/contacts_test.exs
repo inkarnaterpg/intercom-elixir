@@ -17,6 +17,35 @@ defmodule Intercom.ContactsTest do
     end
   end
 
+  describe "create/1" do
+    test "returns correct result for new contact" do
+      expected_url = Intercom.API.Rest.url("contacts")
+
+      expected_data = %{
+        role: "user",
+        external_id: "123",
+        email: "chuck@dgns.wtf"
+      }
+
+      response_code = 200
+
+      body =
+        "{\"id\": \"test\", \"role\": \"user\", \"email\": \"chuck@dgns.wtf\", \"external_id\": \"123\"}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+
+      {:ok, data, _metadata} =
+        Intercom.Contacts.create(%{role: "user", external_id: "123", email: "chuck@dgns.wtf"})
+
+      assert %{
+               "id" => "test",
+               "role" => "user",
+               "email" => "chuck@dgns.wtf",
+               "external_id" => "123"
+             } == data
+    end
+  end
+
   describe "update/2" do
     test "returns correct result in case contact_id does exist" do
       contact_id = "123"
@@ -53,9 +82,9 @@ defmodule Intercom.ContactsTest do
 
       Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
 
-      {:ok, data, _metadata} = Intercom.Contacts.find_equal("email", "test@test.local")
+      {:ok, [data], _metadata} = Intercom.Contacts.find_equal("email", "test@test.local")
 
-      assert length(data) == 1
+      assert data["id"] == "123"
     end
 
     test "returns correct result for multiple result on one page" do

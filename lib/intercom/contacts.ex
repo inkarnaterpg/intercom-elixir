@@ -35,6 +35,19 @@ defmodule Intercom.Contacts do
   end
 
   @doc """
+  Create a new contact.
+
+  Arguments:
+  - `params`: A map containing the fields of the user to be created. See https://developers.intercom.com/intercom-api-reference/reference#create-contact for parameters accepted by the intercom API.
+
+  Returns `{:ok, data, metadata}` or `{:error, error_code, metadata}`.
+  """
+  @spec create(map()) :: Intercom.API.response()
+  def create(params) do
+    Intercom.API.call_endpoint(:post, "contacts", params)
+  end
+
+  @doc """
   Updates one contact identified by the intercom id.
 
   Arguments:

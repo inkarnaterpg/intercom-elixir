@@ -27,9 +27,10 @@ defmodule Intercom.API do
             optional(:pagination) => metadata_pagination,
             optional(:errors) => [map()]
           }
-  @type success :: {:ok, map(), metadata}
+  @type single_success :: {:ok, map(), metadata}
+  @type multiple_success :: {:ok, [map()], metadata}
   @type error :: {:error, atom(), metadata | nil}
-  @type response :: success | error
+  @type response :: single_success | multiple_success | error
 
   @doc """
   Call an Intercom API endpoint.
