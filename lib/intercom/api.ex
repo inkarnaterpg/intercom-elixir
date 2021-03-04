@@ -20,9 +20,9 @@ defmodule Intercom.API do
           %{
             required(:response) => map(),
             required(:rate_limit) => %{
-              limit: integer(),
-              reset: %DateTime{},
-              remaining: integer()
+              limit: integer() | nil,
+              reset: %DateTime{} | nil,
+              remaining: integer() | nil
             },
             optional(:pagination) => metadata_pagination,
             optional(:errors) => [map()]
@@ -135,9 +135,9 @@ defmodule Intercom.API do
     %{
       response: response,
       rate_limit: %{
-        limit: String.to_integer(headers["X-RateLimit-Limit"]),
-        reset: DateTime.from_unix!(String.to_integer(headers["X-RateLimit-Reset"])),
-        remaining: String.to_integer(headers["X-RateLimit-Remaining"])
+        limit: extract_x_ratelimit_limit_from_headers(headers),
+        reset: extract_x_ratelimit_reset_from_headers(headers),
+        remaining: extract_x_ratelimit_remaining_from_headers(headers)
       }
     }
   end
@@ -145,6 +145,23 @@ defmodule Intercom.API do
   defp extract_metadata_from_headers(%HTTPoison.Error{} = error), do: %{error: error}
 
   defp extract_metadata_from_headers(_response), do: nil
+
+  defp extract_x_ratelimit_limit_from_headers(%{"X-RateLimit-Limit" => x_ratelimit_limit}),
+    do: String.to_integer(x_ratelimit_limit)
+
+  defp extract_x_ratelimit_limit_from_headers(_headers), do: nil
+
+  defp extract_x_ratelimit_reset_from_headers(%{"X-RateLimit-Reset" => x_ratelimit_reset}),
+    do: x_ratelimit_reset |> String.to_integer() |> DateTime.from_unix!()
+
+  defp extract_x_ratelimit_reset_from_headers(_headers), do: nil
+
+  defp extract_x_ratelimit_remaining_from_headers(%{
+         "X-RateLimit-Remaining" => x_ratelimit_remaining
+       }),
+       do: String.to_integer(x_ratelimit_remaining)
+
+  defp extract_x_ratelimit_remaining_from_headers(_headers), do: nil
 
   defp extract_body(%{"data" => data, "type" => "list"}), do: data
 

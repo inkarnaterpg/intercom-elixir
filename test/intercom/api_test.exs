@@ -158,7 +158,9 @@ defmodule Intercom.APITest do
       user_id = "123"
       expected_url = Intercom.API.Rest.url("contacts/#{user_id}")
       response_code = 429
-      headers = Intercom.ApiMockHelpers.intercom_headers(%{"X-RateLimit-Remaining" => "0"})
+
+      headers =
+        Intercom.ApiMockHelpers.intercom_headers(response_code, %{"X-RateLimit-Remaining" => "0"})
 
       Intercom.ApiMockHelpers.mock_get(expected_url, response_code, "", headers)
 

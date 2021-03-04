@@ -4,10 +4,10 @@ defmodule Intercom.ApiMockHelpers do
   import Mox
 
   def mock_get(expected_url, response_code),
-    do: mock_get(expected_url, response_code, "", intercom_headers())
+    do: mock_get(expected_url, response_code, "", intercom_headers(response_code))
 
   def mock_get(expected_url, response_code, body),
-    do: mock_get(expected_url, response_code, body, intercom_headers())
+    do: mock_get(expected_url, response_code, body, intercom_headers(response_code))
 
   def mock_get(expected_url, response_code, body, headers) do
     Intercom.MockHTTPoison
@@ -17,10 +17,11 @@ defmodule Intercom.ApiMockHelpers do
   end
 
   def mock_post(expected_url, expected_body, response_code),
-    do: mock_post(expected_url, expected_body, response_code, "", intercom_headers())
+    do: mock_post(expected_url, expected_body, response_code, "", intercom_headers(response_code))
 
   def mock_post(expected_url, expected_body, response_code, body),
-    do: mock_post(expected_url, expected_body, response_code, body, intercom_headers())
+    do:
+      mock_post(expected_url, expected_body, response_code, body, intercom_headers(response_code))
 
   def mock_post(expected_url, nil, response_code, body, headers) do
     Intercom.MockHTTPoison
@@ -43,17 +44,42 @@ defmodule Intercom.ApiMockHelpers do
 
     Intercom.MockHTTPoison
     |> expect(:put, fn ^expected_url, ^expected_body, _headers, [] ->
-      mock_response(response_code, intercom_headers(), body)
+      mock_response(response_code, intercom_headers(response_code), body)
     end)
   end
 
-  def intercom_headers(headers \\ %{}) do
+  def intercom_headers(response_code, headers \\ %{})
+
+  def intercom_headers(200, headers) do
     Map.merge(
       %{
         "Content-Type" => "application/json; charset=utf-8",
         "X-RateLimit-Limit" => "167",
         "X-RateLimit-Reset" => "1604928780",
         "X-RateLimit-Remaining" => "167"
+      },
+      headers
+    )
+    |> Map.to_list()
+  end
+
+  def intercom_headers(202, headers) do
+    Map.merge(
+      %{
+        "Content-Type" => "application/json; charset=utf-8",
+        "X-RateLimit-Limit" => "167",
+        "X-RateLimit-Reset" => "1604928780",
+        "X-RateLimit-Remaining" => "167"
+      },
+      headers
+    )
+    |> Map.to_list()
+  end
+
+  def intercom_headers(_response_code, headers) do
+    Map.merge(
+      %{
+        "Content-Type" => "application/json; charset=utf-8"
       },
       headers
     )
