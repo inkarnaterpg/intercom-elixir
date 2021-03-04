@@ -145,6 +145,25 @@ defmodule Intercom.ContactsTest do
     end
   end
 
+  describe "unarchive/1" do
+    test "returns correct result in case contact_id does exist" do
+      contact_id = "123"
+
+      expected_url = Intercom.API.Rest.url("contacts/#{contact_id}/unarchive")
+
+      expected_data = nil
+
+      response_code = 200
+      body = "{\"id\": \"#{contact_id}\", \"archived\": false}"
+
+      Intercom.ApiMockHelpers.mock_post(expected_url, expected_data, response_code, body)
+
+      {:ok, data, _metadata} = Intercom.Contacts.unarchive(contact_id)
+
+      assert %{"id" => contact_id, "archived" => false} == data
+    end
+  end
+
   describe "add_tag/2" do
     test "returns correct result in case contact_id and tag_id does exist" do
       contact_id = "123"
