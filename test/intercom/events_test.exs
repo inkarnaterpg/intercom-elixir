@@ -26,7 +26,7 @@ defmodule Intercom.EventsTest do
       expected_url = Intercom.API.Rest.url("events")
 
       expected_data = %{
-        id: contact_id,
+        user_id: contact_id,
         event_name: event_name,
         created_at: created_at |> DateTime.to_unix()
       }

@@ -21,7 +21,7 @@ defmodule Intercom.Events do
 
   def submit(contact_id, event_name, %DateTime{} = created_at) do
     Intercom.API.call_endpoint(:post, "events", %{
-      id: contact_id,
+      user_id: contact_id,
       event_name: event_name,
       created_at: created_at |> DateTime.to_unix()
     })
