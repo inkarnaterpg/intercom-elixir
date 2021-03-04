@@ -11,7 +11,7 @@ Add `intercom` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:intercom, "~> 1.3", hex: :intercom_elixir}
+    {:intercom, "~> 2.0", hex: :intercom_elixir}
   ]
 end
 ```
