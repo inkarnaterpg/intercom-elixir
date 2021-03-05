@@ -1,0 +1,43 @@
+name: Test
+on:
+  push:
+    branches: [develop,master]
+  pull_request:
+    branches: [develop,master]
+
+env:
+  elixir-version: '1.11.2'
+  erlang-version: '23.2.1'
+
+jobs:
+  build-elixir:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/cache@v2
+        id: mix-cache
+        with:
+          path: |
+            _build
+            deps
+            priv/plts
+          key: ${{ runner.os }}-mix-${{ env.erlang-version }}-${{ env.elixir-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+      - if: steps.mix-cache.outputs.cache-hit != 'true'
+        uses: actions/setup-elixir@v1
+        with:
+          otp-version: ${{ env.erlang-version }}
+          elixir-version: ${{ env.elixir-version }}
+      - if: steps.mix-cache.outputs.cache-hit != 'true'
+        run: |
+          export MIX_ENV=test
+          mix deps.get
+          mix deps.compile
+      - run: |
+          mix format --check-formatted
+          mix credo
+          mix dialyzer
+          mix test
