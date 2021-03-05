@@ -5,7 +5,7 @@ defmodule Intercom.MixProject do
     [
       app: :intercom,
       version: "2.0.3",
-      elixir: "~> 1.9",
+      elixir: "~> 1.10",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
